@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 const API_URL = "http://localhost:8080";
 
 function App() {
-  const [data, setData] = useState<string>();
+  const [data, setData] = useState<string>("");
+  const [hash, setHash] = useState<string>("");
 
   useEffect(() => {
     getData();
@@ -11,8 +12,9 @@ function App() {
 
   const getData = async () => {
     const response = await fetch(API_URL);
-    const { data } = await response.json();
+    const { data, hash } = await response.json();
     setData(data);
+    setHash(hash);
   };
 
   const updateData = async () => {
@@ -29,7 +31,21 @@ function App() {
   };
 
   const verifyData = async () => {
-    throw new Error("Not implemented");
+    const response = await fetch(`${API_URL}/verify`);
+    const { valid } = await response.json();
+    if (valid) {
+      alert("Data is valid and untampered.");
+    } else {
+      alert("Data has been tampered with!");
+    }
+  };
+
+  const recoverData = async () => {
+    await fetch(`${API_URL}/recover`, {
+      method: "POST",
+    });
+
+    await getData();
   };
 
   return (
@@ -61,6 +77,9 @@ function App() {
         </button>
         <button style={{ fontSize: "20px" }} onClick={verifyData}>
           Verify Data
+        </button>
+        <button style={{ fontSize: "20px" }} onClick={recoverData}>
+          Recover Data
         </button>
       </div>
     </div>
